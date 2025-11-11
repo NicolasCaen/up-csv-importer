@@ -48,6 +48,8 @@ class UP_CSV_Admin_Page {
                 $data_type = isset($row['data_type']) ? sanitize_text_field($row['data_type']) : '';
                 $field_type = isset($row['field_type']) ? sanitize_key($row['field_type']) : '';
                 $meta_key = isset($row['meta_key']) ? sanitize_key($row['meta_key']) : '';
+                $taxonomy = isset($row['taxonomy']) ? sanitize_key($row['taxonomy']) : '';
+                $image_mode = isset($row['image_mode']) ? sanitize_key($row['image_mode']) : '';
                 if ($csv !== '' && $field_type !== '') {
                     $f = $fields->addChild('field');
                     $f->addAttribute('csv', $csv);
@@ -55,6 +57,15 @@ class UP_CSV_Admin_Page {
                     $f->addAttribute('field_type', $field_type);
                     if ($field_type === 'meta' && $meta_key) {
                         $f->addAttribute('meta_key', $meta_key);
+                    }
+                    if ($field_type === 'unique_meta' && $meta_key) {
+                        $f->addAttribute('meta_key', $meta_key);
+                    }
+                    if ($field_type === 'taxonomy' && $taxonomy) {
+                        $f->addAttribute('taxonomy', $taxonomy);
+                    }
+                    if ($field_type === 'featured_image' && $image_mode) {
+                        $f->addAttribute('image_mode', in_array($image_mode, ['url','id'], true) ? $image_mode : 'url');
                     }
                 }
             }

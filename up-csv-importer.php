@@ -2,12 +2,12 @@
 /**
  * Plugin Name: UP CSV Importer
  * Description: Créer et gérer des configurations XML d'import CSV.
- * Version: 0.1.1.0
+ * Version: 0.1.2.0
  * Author: GEHIN Nicolas
  */
 if (!defined('ABSPATH')) exit;
 
-if (!defined('UP_CSV_IMPORTER_VERSION')) define('UP_CSV_IMPORTER_VERSION', '0.1.1.0');
+if (!defined('UP_CSV_IMPORTER_VERSION')) define('UP_CSV_IMPORTER_VERSION', '0.1.2.0');
 if (!defined('UP_CSV_IMPORTER_PATH')) define('UP_CSV_IMPORTER_PATH', plugin_dir_path(__FILE__));
 if (!defined('UP_CSV_IMPORTER_URL')) define('UP_CSV_IMPORTER_URL', plugin_dir_url(__FILE__));
 if (!defined('UP_CSV_IMPORTER_CONFIG_DIR')) define('UP_CSV_IMPORTER_CONFIG_DIR', UP_CSV_IMPORTER_PATH . 'config-settings/');

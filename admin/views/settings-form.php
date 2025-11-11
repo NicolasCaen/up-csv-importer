@@ -14,14 +14,16 @@
             </tr>
         </table>
         <h2>Mappage</h2>
-        <p>Ajoutez autant de lignes que nécessaire, avec le type de donnée et le type de champ cible. Si vous choisissez "meta", renseignez la clé meta.</p>
+        <p>Ajoutez autant de lignes que nécessaire. Selon le type de champ choisi, renseignez les paramètres associés.</p>
         <table class="widefat striped" id="up-csv-mapping-table">
             <thead>
                 <tr>
-                    <th>Index CSV</th>
+                    <th>Index/Nom CSV</th>
                     <th>Type de donnée</th>
                     <th>Type de champ</th>
-                    <th>Clé meta (si meta)</th>
+                    <th>Clé meta</th>
+                    <th>Taxonomy</th>
+                    <th>Mode image</th>
                     <th></th>
                 </tr>
             </thead>
@@ -38,10 +40,9 @@
     const addBtn = document.getElementById('up-csv-add-row');
     let idx = 0;
 
-    function createRow(i){
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td><input name="mapping[${i}][csv]" type="text" placeholder="0" style="width:100%"></td>
+    function rowHtml(i){
+        return `
+            <td><input name="mapping[${i}][csv]" type="text" placeholder="0 ou title" style="width:100%"></td>
             <td>
                 <select name="mapping[${i}][data_type]" style="width:100%">
                     <option value="text">text</option>
@@ -54,46 +55,54 @@
                 <select name="mapping[${i}][field_type]" class="up-field-type" data-index="${i}" style="width:100%">
                     <option value="post_title">post_title</option>
                     <option value="post_content">post_content</option>
+                    <option value="post_excerpt">post_excerpt</option>
+                    <option value="post_status">post_status</option>
+                    <option value="post_date">post_date</option>
+                    <option value="featured_image">featured_image</option>
+                    <option value="taxonomy">taxonomy</option>
                     <option value="meta">meta</option>
+                    <option value="unique_meta">unique_meta</option>
                 </select>
             </td>
             <td><input name="mapping[${i}][meta_key]" type="text" placeholder="_custom_key" style="width:100%" disabled></td>
+            <td><input name="mapping[${i}][taxonomy]" type="text" placeholder="category" style="width:100%" disabled></td>
+            <td>
+                <select name="mapping[${i}][image_mode]" style="width:100%" disabled>
+                    <option value="url">url</option>
+                    <option value="id">id</option>
+                </select>
+            </td>
             <td><button type="button" class="button link-delete" data-index="${i}">Supprimer</button></td>
         `;
+    }
+
+    function createRow(i){
+        const tr = document.createElement('tr');
+        tr.innerHTML = rowHtml(i);
         tableBody.appendChild(tr);
     }
 
-    function refreshMetaDisabled(){
+    function refreshToggles(){
         tableBody.querySelectorAll('select.up-field-type').forEach(sel => {
             const i = sel.getAttribute('data-index');
             const metaInput = tableBody.querySelector(`input[name="mapping[${i}][meta_key]"]`);
-            if (sel.value === 'meta') {
-                metaInput.disabled = false;
-            } else {
-                metaInput.disabled = true;
-                metaInput.value = '';
-            }
+            const taxInput = tableBody.querySelector(`input[name="mapping[${i}][taxonomy]"]`);
+            const imgMode = tableBody.querySelector(`select[name="mapping[${i}][image_mode]"]`);
+            const type = sel.value;
+            // Defaults
+            metaInput.disabled = true; taxInput.disabled = true; imgMode.disabled = true;
+            if (type === 'meta' || type === 'unique_meta') metaInput.disabled = false;
+            if (type === 'taxonomy') taxInput.disabled = false;
+            if (type === 'featured_image') imgMode.disabled = false;
         });
     }
 
-    addBtn.addEventListener('click', function(){
-        createRow(idx++);
-        refreshMetaDisabled();
-    });
-
-    tableBody.addEventListener('change', function(e){
-        if (e.target && e.target.classList.contains('up-field-type')){
-            refreshMetaDisabled();
-        }
-    });
-
-    tableBody.addEventListener('click', function(e){
-        if (e.target && e.target.classList.contains('link-delete')){
-            e.target.closest('tr').remove();
-        }
-    });
+    addBtn.addEventListener('click', function(){ createRow(idx++); refreshToggles(); });
+    tableBody.addEventListener('change', function(e){ if (e.target && e.target.classList.contains('up-field-type')) refreshToggles(); });
+    tableBody.addEventListener('click', function(e){ if (e.target && e.target.classList.contains('link-delete')) e.target.closest('tr').remove(); });
 
     // Initial row
     createRow(idx++);
+    refreshToggles();
 })();
 </script>
