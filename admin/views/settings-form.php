@@ -1,7 +1,7 @@
 <?php if (!defined('ABSPATH')) exit; ?>
 <div class="wrap">
     <h1>Nouvelle configuration</h1>
-    <form method="post">
+    <form method="post" action="<?php echo esc_url( admin_url('admin-post.php?action=up_csv_importer_save') ); ?>">
         <?php wp_nonce_field('up_csv_save', 'up_csv_nonce'); ?>
         <table class="form-table" role="presentation">
             <tr>
