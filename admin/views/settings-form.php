@@ -12,6 +12,13 @@
                 <th scope="row"><label for="post_type">Post Type</label></th>
                 <td><input name="post_type" id="post_type" type="text" class="regular-text" value="post" required></td>
             </tr>
+            <tr>
+                <th scope="row"><label for="delimiter">Délimiteur CSV</label></th>
+                <td>
+                    <input name="delimiter" id="delimiter" type="text" class="regular-text" placeholder=", ; tab |" maxlength="8">
+                    <p class="description">Un seul caractère (ex: <code>;</code>) ou mots-clés: <code>comma</code>, <code>semicolon</code>, <code>tab</code>, <code>pipe</code>.</p>
+                </td>
+            </tr>
         </table>
         <h2>Mappage</h2>
         <p>Ajoutez autant de lignes que nécessaire. Selon le type de champ choisi, renseignez les paramètres associés.</p>

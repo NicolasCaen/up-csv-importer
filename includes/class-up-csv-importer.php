@@ -59,8 +59,15 @@ class UP_CSV_Importer {
             return $result;
         }
 
-        // Détection du délimiteur (",", ";", "\t", "|")
-        $delimiter = $this->detect_delimiter($csv_path);
+        // Déterminer le délimiteur: priorité au XML <delimiter>, sinon auto‑détection
+        $delimiter = null;
+        if (isset($xml->delimiter)) {
+            $delimiter = $this->normalize_delimiter((string)$xml->delimiter);
+        }
+        if (!$delimiter) {
+            // Détection du délimiteur (",", ";", "\t", "|")
+            $delimiter = $this->detect_delimiter($csv_path);
+        }
 
         $header = fgetcsv($handle, 0, $delimiter);
         if ($header === false) {
@@ -290,5 +297,21 @@ class UP_CSV_Importer {
             if ($cnt > $bestCount) { $best = $d; $bestCount = $cnt; }
         }
         return $best;
+    }
+
+    private function normalize_delimiter($in) {
+        $in = trim((string)$in);
+        if ($in === '') return '';
+        $map = [
+            'comma' => ',',
+            'semicolon' => ';',
+            'tab' => "\t",
+            'pipe' => '|',
+        ];
+        $lower = strtolower($in);
+        if (isset($map[$lower])) return $map[$lower];
+        // si l'utilisateur a tapé directement un caractère
+        if ($in === '\\t') return "\t"; // support entrée littérale "\t"
+        return mb_substr($in, 0, 1);
     }
 }

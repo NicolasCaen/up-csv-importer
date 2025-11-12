@@ -51,10 +51,12 @@ add_action('admin_post_up_csv_importer_save', function(){
 
     $name = sanitize_title($_POST['config_name'] ?? '');
     $post_type = sanitize_key($_POST['post_type'] ?? 'post');
+    $delimiter_in = isset($_POST['delimiter']) ? sanitize_text_field($_POST['delimiter']) : '';
     $mappings = $_POST['mapping'] ?? [];
     $xml = new SimpleXMLElement('<config/>');
     $xml->addChild('name', $name);
     $xml->addChild('post_type', $post_type);
+    if ($delimiter_in !== '') { $xml->addChild('delimiter', $delimiter_in); }
     $fields = $xml->addChild('fields');
     foreach ($mappings as $row) {
         $csv = isset($row['csv']) ? trim(wp_unslash($row['csv'])) : '';
