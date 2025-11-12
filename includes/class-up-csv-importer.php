@@ -17,22 +17,36 @@ class UP_CSV_Importer {
         $fields = [];
         $unique_meta_key = '';
         $unique_meta_csv = '';
-        if (!empty($xml->fields->field)) {
-            foreach ($xml->fields->field as $f) {
-                $entry = [
-                    'csv' => (string)$f['csv'],
-                    'data_type' => isset($f['data_type']) ? (string)$f['data_type'] : 'text',
-                    'field_type' => isset($f['field_type']) ? (string)$f['field_type'] : '',
-                    'meta_key' => isset($f['meta_key']) ? (string)$f['meta_key'] : '',
-                    'taxonomy' => isset($f['taxonomy']) ? (string)$f['taxonomy'] : '',
-                    'image_mode' => isset($f['image_mode']) ? (string)$f['image_mode'] : 'url',
-                ];
-                if ($entry['field_type'] === 'unique_meta' && !empty($entry['meta_key'])) {
-                    $unique_meta_key = $entry['meta_key'];
-                    $unique_meta_csv = $entry['csv'];
-                }
-                $fields[] = $entry;
+        $nodes = [];
+        // 1) XPath direct
+        if (method_exists($xml, 'xpath')) {
+            $xp = $xml->xpath('/config/fields/field');
+            if (is_array($xp) && !empty($xp)) { $nodes = $xp; }
+        }
+        // 2) children()
+        if (empty($nodes) && isset($xml->fields)) {
+            foreach ($xml->fields->children() as $child) {
+                if ($child->getName() === 'field') { $nodes[] = $child; }
             }
+        }
+        // 3) iterable direct
+        if (empty($nodes) && isset($xml->fields->field)) {
+            foreach ($xml->fields->field as $f) { $nodes[] = $f; }
+        }
+        foreach ($nodes as $f) {
+            $entry = [
+                'csv' => (string)$f['csv'],
+                'data_type' => isset($f['data_type']) ? (string)$f['data_type'] : 'text',
+                'field_type' => isset($f['field_type']) ? (string)$f['field_type'] : '',
+                'meta_key' => isset($f['meta_key']) ? (string)$f['meta_key'] : '',
+                'taxonomy' => isset($f['taxonomy']) ? (string)$f['taxonomy'] : '',
+                'image_mode' => isset($f['image_mode']) ? (string)$f['image_mode'] : 'url',
+            ];
+            if ($entry['field_type'] === 'unique_meta' && !empty($entry['meta_key'])) {
+                $unique_meta_key = $entry['meta_key'];
+                $unique_meta_csv = $entry['csv'];
+            }
+            $fields[] = $entry;
         }
         if (empty($fields)) {
             $result['errors'][] = 'Aucun mappage défini dans la configuration.';
@@ -45,7 +59,10 @@ class UP_CSV_Importer {
             return $result;
         }
 
-        $header = fgetcsv($handle);
+        // Détection du délimiteur (",", ";", "\t", "|")
+        $delimiter = $this->detect_delimiter($csv_path);
+
+        $header = fgetcsv($handle, 0, $delimiter);
         if ($header === false) {
             fclose($handle);
             $result['errors'][] = 'CSV vide.';
@@ -58,7 +75,7 @@ class UP_CSV_Importer {
             $header_index[trim((string)$name)] = $idx;
         }
 
-        while (($row = fgetcsv($handle)) !== false) {
+        while (($row = fgetcsv($handle, 0, $delimiter)) !== false) {
             $postarr = [
                 'post_type' => $post_type,
                 'post_status' => 'publish',
@@ -256,5 +273,22 @@ class UP_CSV_Importer {
             return 0;
         }
         return intval($id);
+    }
+
+    private function detect_delimiter($path) {
+        $candidates = [',', ';', "\t", '|'];
+        $first = '';
+        $fh = @fopen($path, 'r');
+        if ($fh) {
+            $first = fgets($fh, 4096);
+            fclose($fh);
+        }
+        if (!is_string($first) || $first === '') return ',';
+        $best = ','; $bestCount = -1;
+        foreach ($candidates as $d) {
+            $cnt = substr_count($first, $d);
+            if ($cnt > $bestCount) { $best = $d; $bestCount = $cnt; }
+        }
+        return $best;
     }
 }
