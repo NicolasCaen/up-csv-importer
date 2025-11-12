@@ -8,6 +8,7 @@ Créer, configurer et enregistrer des fichiers XML décrivant comment importer u
 2. Activer le plugin dans l’administration WordPress.
 
 ## Changelog
+- 2025-11-12 · v0.1.3.0 · Ajout d’un champ « Délimiteur CSV » dans l’UI; sauvegarde dans le XML via `<delimiter>` et utilisation prioritaire par l’importeur (sinon auto‑détection).
 - 2025-11-12 · v0.1.2.2 · Détection auto du délimiteur CSV (`,`, `;`, tab, `|`) et parsing robuste des champs XML (`fields/field`). Ajout d’un aperçu diagnostic côté Runner (chemin XML + liste des champs).
 - 2025-11-12 · v0.1.2.1 · Correction: sauvegarde via `admin-post.php?action=up_csv_importer_save` pour éviter l’erreur « Impossible de charger up-csv-importer-new ». Renommage de la classe placeholder pour éviter la collision avec `UP_CSV_Exporter` du plugin Exporter.
 - 2025-11-11 · v0.1.2.0 · Import « réel »: upsert via `unique_meta`, support `featured_image` (URL/ID), `taxonomy` (slugs/noms, création si manquante), champs supplémentaires (`post_excerpt`, `post_status`, `post_date`), coercition `number` et `date`, résumé des résultats dans le Runner.
